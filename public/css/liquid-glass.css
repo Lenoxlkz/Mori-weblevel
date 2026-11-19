@@ -1,0 +1,1523 @@
+/* Apple-style Liquid Glass Theme Layer for Mori
+ * Integrates @zakisheriff/liquid-glass tokens, optical surfaces, pill navigation,
+ * segmented controls, sliders, switches, inputs, cards, and bottom sheets
+ * without altering any underlying application behavior or DOM selectors.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens & Atmospheric Ambient Backdrop (Light & Dark)
+   ========================================================================== */
+
+:root,
+[data-theme="light"] {
+  --bg-color: #eaf0fb;
+  --bg-rgb: 234, 240, 251;
+  --surface: rgba(255, 255, 255, 0.66);
+  --surface-rgb: 255, 255, 255;
+  --text-main: rgba(15, 18, 26, 0.9);
+  --text-secondary: rgba(54, 58, 70, 0.68);
+  --border-color: rgba(18, 22, 34, 0.09);
+
+  --lg-highlight-top: rgba(255, 255, 255, 0.78);
+  --lg-highlight-edge: rgba(255, 255, 255, 0.6);
+  --lg-ambient-1: rgba(68, 152, 255, 0.36);
+  --lg-ambient-2: rgba(152, 118, 255, 0.28);
+  --lg-ambient-3: rgba(44, 206, 192, 0.25);
+  --lg-ambient-4: rgba(255, 162, 118, 0.2);
+}
+
+[data-theme="dark"] {
+  --bg-color: #090d16;
+  --bg-rgb: 9, 13, 22;
+  --surface: rgba(34, 37, 46, 0.6);
+  --surface-rgb: 34, 37, 46;
+  --text-main: rgba(255, 255, 255, 0.96);
+  --text-secondary: rgba(235, 235, 245, 0.64);
+  --border-color: rgba(255, 255, 255, 0.12);
+
+  --lg-highlight-top: rgba(255, 255, 255, 0.2);
+  --lg-highlight-edge: rgba(255, 255, 255, 0.14);
+  --lg-ambient-1: rgba(0, 145, 255, 0.32);
+  --lg-ambient-2: rgba(124, 92, 255, 0.26);
+  --lg-ambient-3: rgba(24, 198, 184, 0.18);
+  --lg-ambient-4: rgba(255, 96, 148, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-color: #090d16;
+    --bg-rgb: 9, 13, 22;
+    --surface: rgba(34, 37, 46, 0.6);
+    --surface-rgb: 34, 37, 46;
+    --text-main: rgba(255, 255, 255, 0.96);
+    --text-secondary: rgba(235, 235, 245, 0.64);
+    --border-color: rgba(255, 255, 255, 0.12);
+
+    --lg-highlight-top: rgba(255, 255, 255, 0.2);
+    --lg-highlight-edge: rgba(255, 255, 255, 0.14);
+    --lg-ambient-1: rgba(0, 145, 255, 0.32);
+    --lg-ambient-2: rgba(124, 92, 255, 0.26);
+    --lg-ambient-3: rgba(24, 198, 184, 0.18);
+    --lg-ambient-4: rgba(255, 96, 148, 0.15);
+  }
+}
+
+html {
+  background-color: var(--bg-color);
+  color: var(--lg-fg);
+  font-family: var(--lg-font);
+}
+
+body {
+  background-color: transparent;
+  color: var(--lg-fg);
+  font-family: var(--lg-font);
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Luminous multi-stop ambient canvas behind all glass surfaces */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  pointer-events: none;
+  z-index: -2;
+}
+
+body::before {
+  background:
+    radial-gradient(50% 44% at 14% 12%, var(--lg-ambient-1), transparent 70%),
+    radial-gradient(46% 42% at 86% 18%, var(--lg-ambient-2), transparent 68%),
+    radial-gradient(52% 46% at 78% 82%, var(--lg-ambient-3), transparent 72%),
+    radial-gradient(44% 40% at 18% 84%, var(--lg-ambient-4), transparent 70%),
+    linear-gradient(155deg, rgba(var(--bg-rgb), 0.72), rgba(var(--bg-rgb), 0.94));
+}
+
+body::after {
+  background:
+    radial-gradient(30% 26% at 52% 40%, rgba(255, 255, 255, 0.42), transparent 70%);
+  opacity: 0.65;
+}
+
+[data-theme="dark"] body::after {
+  background:
+    radial-gradient(34% 28% at 50% 36%, rgba(64, 148, 255, 0.2), transparent 72%);
+  opacity: 0.75;
+}
+
+/* ==========================================================================
+   2. Responsive Workspace Layout & Typography
+   ========================================================================== */
+
+.app-container {
+  max-width: 540px;
+  padding: calc(32px + env(safe-area-inset-top)) 18px
+    calc(116px + env(safe-area-inset-bottom)) 18px;
+  overflow-x: visible;
+}
+
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 780px;
+    padding: 44px 32px 128px 32px;
+  }
+
+  .platform-chips {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (min-width: 1080px) {
+  .app-container {
+    max-width: 920px;
+  }
+
+  .platform-chips {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+header {
+  margin-bottom: 28px;
+}
+
+header h1 {
+  font-size: clamp(1.9rem, 3.2vw, 2.35rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  color: var(--lg-fg);
+  margin-bottom: 4px;
+}
+
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  color: var(--lg-fg);
+}
+
+.page-header p {
+  color: var(--lg-fg-muted);
+  font-size: 0.88rem;
+}
+
+.sub-page-header h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  text-transform: none;
+  color: var(--lg-fg);
+}
+
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--lg-fg-muted);
+}
+
+/* ==========================================================================
+   3. Floating Liquid Glass Pill Navigation (GlassNav)
+   ========================================================================== */
+
+.bottom-nav {
+  position: fixed;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(calc(100% - 24px), 460px);
+  max-width: 480px;
+  padding: 5px;
+  gap: 2px;
+  border-radius: 999px;
+  background-color: var(--lg-navigation-fill);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: var(--lg-filter, ) blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  border: 0.5px solid var(--lg-edge);
+  box-shadow:
+    var(--lg-shadow),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+  isolation: isolate;
+  overflow: visible;
+  z-index: 120;
+  transition:
+    background-color 260ms ease,
+    box-shadow 260ms ease,
+    transform 220ms cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    bottom: 18px;
+    width: min(calc(100% - 48px), 480px);
+  }
+}
+
+.bottom-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--lg-rim, none);
+  background-size: 100% 100%;
+  opacity: var(--lg-rim-opacity);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mori-nav-lens {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 0;
+  width: 0;
+  border-radius: 999px;
+  background: var(--lg-tab-selection);
+  box-shadow:
+    inset 0 0 0 0.5px var(--lg-edge),
+    inset 0 1px 0 var(--lg-highlight-top),
+    0 2px 10px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 0.42s cubic-bezier(0.22, 1.24, 0.36, 1),
+    width 0.34s cubic-bezier(0.22, 1.15, 0.36, 1),
+    opacity 0.2s ease;
+  will-change: transform, width;
+}
+
+[data-theme="dark"] .mori-nav-lens {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.mori-nav-lens.ready {
+  opacity: 1;
+}
+
+.nav-item {
+  position: relative;
+  z-index: 2;
+  border-radius: 999px;
+  min-height: 52px;
+  padding: 6px 4px;
+  color: var(--lg-fg-muted);
+  gap: 3px;
+  transition:
+    color 0.2s ease,
+    transform 0.18s cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+
+.nav-item svg {
+  width: 21px;
+  height: 21px;
+  transition:
+    transform 0.24s cubic-bezier(0.22, 1.4, 0.36, 1),
+    color 0.2s ease;
+}
+
+.nav-item span {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.nav-item:hover:not(.active) {
+  color: var(--lg-fg);
+}
+
+.nav-item.active {
+  color: var(--lg-accent);
+}
+
+.nav-item.active svg {
+  color: var(--lg-accent);
+  transform: translateY(-1px) scale(1.06);
+}
+
+.nav-item:active {
+  transform: scale(0.94);
+}
+
+/* ==========================================================================
+   4. Glass Inputs & Search Fields (GlassInput)
+   ========================================================================== */
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input[type="text"],
+#urlInput,
+.tool-input-wrapper input {
+  height: 52px;
+  padding: 0 92px 0 48px;
+  background-color: var(--lg-fill);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: var(--lg-filter, ) blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 26px;
+  color: var(--lg-fg);
+  caret-color: var(--lg-accent);
+  font-size: 0.98rem;
+  box-shadow:
+    var(--lg-shadow),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+  transition:
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.tool-input-wrapper input {
+  padding-right: 54px;
+}
+
+.input-wrapper input[type="text"]::placeholder,
+#urlInput::placeholder,
+.batch-url-textarea::placeholder,
+.tool-input-wrapper input::placeholder,
+.gallery-search-wrap input::placeholder {
+  color: var(--lg-fg-muted);
+}
+
+.input-wrapper input[type="text"]:focus,
+#urlInput:focus,
+.tool-input-wrapper input:focus,
+.batch-url-textarea:focus {
+  background-color: var(--lg-fill-pressed);
+  border-color: var(--lg-ring);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--lg-accent) 22%, transparent),
+    var(--lg-shadow),
+    inset 0 1px 0 var(--lg-highlight-top);
+}
+
+.search-icon,
+.tool-input-icon {
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--lg-fg-muted);
+  opacity: 0.85;
+  filter: none;
+  z-index: 2;
+}
+
+.input-action-btn,
+.tool-input-action-btn {
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: var(--lg-fg-muted);
+  z-index: 2;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.15s ease;
+}
+
+.input-action-btn:hover,
+.tool-input-action-btn:hover {
+  background: color-mix(in srgb, var(--lg-fg) 8%, transparent);
+  color: var(--lg-fg);
+}
+
+.input-action-btn:active,
+.tool-input-action-btn:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.batch-toggle-btn {
+  right: 50px !important;
+}
+
+.batch-toggle-btn.active {
+  background: color-mix(in srgb, var(--lg-accent) 16%, transparent);
+  color: var(--lg-accent);
+}
+
+.batch-url-textarea {
+  min-height: 132px;
+  padding: 16px 92px 16px 18px;
+  background-color: var(--lg-fill);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 24px;
+  color: var(--lg-fg);
+  caret-color: var(--lg-accent);
+  box-shadow:
+    var(--lg-shadow),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+}
+
+.input-wrapper.batch-active .input-action-btn {
+  top: 10px;
+  transform: none;
+}
+
+.input-wrapper.batch-active .input-action-btn:active {
+  transform: scale(0.92);
+}
+
+/* Gallery Search & Sort Pill */
+.gallery-search-wrap {
+  height: 44px;
+  border-radius: 22px;
+  padding: 0 14px;
+  background: var(--lg-fill);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  border: 0.5px solid var(--lg-edge);
+  color: var(--lg-fg-muted);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 var(--lg-highlight-top);
+}
+
+.gallery-search-wrap:focus-within {
+  border-color: var(--lg-ring);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--lg-accent) 22%, transparent),
+    0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.gallery-search-wrap input {
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  font-size: 0.9rem;
+  color: var(--lg-fg);
+}
+
+.gallery-search-wrap input:focus {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.gallery-custom-select,
+.custom-select {
+  height: 44px;
+  border-radius: 22px;
+  padding: 0 14px;
+  background: var(--lg-fill);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  border: 0.5px solid var(--lg-edge);
+  color: var(--lg-fg);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 var(--lg-highlight-top);
+}
+
+.gallery-custom-select:hover,
+.custom-select:hover {
+  background: var(--lg-fill-pressed);
+}
+
+.mori-input-with-icon {
+  background: var(--lg-fill);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 18px;
+  padding: 12px 14px;
+  box-shadow: inset 0 1px 0 var(--lg-highlight-top);
+}
+
+.mori-input-with-icon:focus-within {
+  border-color: var(--lg-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lg-accent) 20%, transparent);
+}
+
+.mori-input-with-icon svg {
+  color: var(--lg-accent);
+  opacity: 0.9;
+}
+
+.mori-input-noborder {
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: var(--lg-fg);
+}
+
+.mori-input-noborder:focus {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   5. Glass Buttons (GlassButton variants: filled, glass, tinted, clear, destructive)
+   ========================================================================== */
+
+/* Filled Accent Glass Action Buttons */
+#downloadBtn,
+#redownloadBtn,
+#batchDownloadAllBtn,
+.tool-execute-btn:not(.secondary),
+.tool-btn-primary,
+.done-btn,
+.dl-all-btn,
+.gallery-doc-open-btn,
+.sniffer-dl-btn,
+#guideToSettingsBtn {
+  position: relative;
+  min-height: 48px;
+  border-radius: 999px;
+  border: 0.5px solid rgba(255, 255, 255, 0.32);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lg-accent) 82%, #ffffff),
+    var(--lg-accent)
+  );
+  color: #ffffff;
+  font-family: var(--lg-font);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  box-shadow:
+    0 10px 26px color-mix(in srgb, var(--lg-accent) 32%, transparent),
+    0 2px 6px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.48);
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1.4, 0.36, 1),
+    filter 0.18s ease,
+    box-shadow 0.22s ease;
+}
+
+.done-btn {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 0.78rem;
+}
+
+.dl-all-btn,
+.sniffer-dl-btn,
+.tool-btn-primary,
+.gallery-doc-open-btn,
+#guideToSettingsBtn {
+  min-height: 44px;
+}
+
+#downloadBtn:hover,
+#redownloadBtn:hover,
+#batchDownloadAllBtn:hover,
+.tool-execute-btn:not(.secondary):hover,
+.tool-btn-primary:hover,
+.done-btn:hover,
+.dl-all-btn:hover,
+.gallery-doc-open-btn:hover,
+.sniffer-dl-btn:hover,
+#guideToSettingsBtn:hover {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lg-accent) 76%, #ffffff),
+    color-mix(in srgb, var(--lg-accent) 92%, #ffffff)
+  );
+  filter: brightness(1.03);
+}
+
+#downloadBtn:active,
+#redownloadBtn:active,
+#batchDownloadAllBtn:active,
+.tool-execute-btn:active,
+.tool-btn-primary:active,
+.done-btn:active,
+.dl-all-btn:active,
+.gallery-doc-open-btn:active,
+.sniffer-dl-btn:active,
+#guideToSettingsBtn:active {
+  transform: scale(0.97);
+}
+
+/* Destructive State */
+#downloadBtn.is-cancelling,
+#batchCancelDownloadBtn {
+  background: color-mix(in srgb, var(--lg-red) 18%, var(--lg-fill)) !important;
+  color: var(--lg-red) !important;
+  border: 0.5px solid color-mix(in srgb, var(--lg-red) 42%, transparent) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 6px 20px color-mix(in srgb, var(--lg-red) 18%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Secondary & Translucent Glass Buttons */
+.secondary-btn,
+.edit-btn,
+.clear-all-btn,
+.pdf-btn,
+.tool-execute-btn.secondary,
+.tool-btn-secondary,
+.tool-btn-accent,
+.path-preset-chip,
+.reset-path-btn,
+.gallery-rescan,
+.back-btn-settings,
+.tool-view-back-btn,
+#closeGuideBtn,
+#batchCloseBtn,
+.pin-key,
+.download-bubble-btn,
+.sniffer-copy-btn,
+.username-open-link,
+.modal-fav-btn {
+  background-color: var(--lg-fill);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: var(--lg-filter, ) blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  border: 0.5px solid var(--lg-edge);
+  color: var(--lg-fg);
+  box-shadow:
+    var(--lg-shadow),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1.4, 0.36, 1),
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.edit-btn,
+.clear-all-btn,
+#closeGuideBtn,
+#batchCloseBtn,
+.tool-execute-btn.secondary,
+.tool-btn-secondary,
+.tool-btn-accent {
+  border-radius: 999px;
+  min-height: 36px;
+  padding: 0 16px;
+  text-transform: none;
+  letter-spacing: -0.01em;
+}
+
+.pdf-btn {
+  border-radius: 20px !important;
+  border: 0.5px solid var(--lg-edge) !important;
+  background-color: var(--lg-fill) !important;
+  color: var(--lg-fg) !important;
+}
+
+.pdf-btn:hover {
+  background-color: var(--lg-fill-pressed) !important;
+  color: var(--lg-fg) !important;
+}
+
+.pdf-btn:hover .option-type,
+.pdf-btn:hover .option-size,
+.pdf-btn:hover svg {
+  color: var(--lg-fg) !important;
+}
+
+.gallery-rescan,
+.back-btn-settings,
+.tool-view-back-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.gallery-rescan:hover,
+.back-btn-settings:hover,
+.tool-view-back-btn:hover,
+.secondary-btn:hover,
+.edit-btn:hover,
+#closeGuideBtn:hover,
+#batchCloseBtn:hover,
+.pin-key:hover,
+.download-bubble-btn:hover {
+  background-color: var(--lg-fill-pressed);
+  color: var(--lg-fg);
+}
+
+.clear-all-btn {
+  color: var(--lg-red);
+}
+
+.clear-all-btn:hover {
+  background-color: color-mix(in srgb, var(--lg-red) 14%, var(--lg-fill));
+  color: var(--lg-red);
+  border-color: color-mix(in srgb, var(--lg-red) 35%, transparent);
+}
+
+/* Platform Chips as Liquid Glass Capsules */
+.chip {
+  min-height: 46px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background-color: var(--lg-fill);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  border: 0.5px solid var(--lg-edge);
+  color: var(--lg-fg);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1.4, 0.36, 1),
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.chip:hover {
+  background-color: var(--lg-fill-pressed);
+  box-shadow:
+    0 10px 26px rgba(0, 0, 0, 0.09),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+  transform: translateY(-1px);
+}
+
+.chip:active {
+  transform: scale(0.96);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+}
+
+.chip span {
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--lg-fg);
+}
+
+.chip svg {
+  color: var(--lg-fg);
+  opacity: 0.88;
+}
+
+/* Download Options List Buttons */
+.download-options {
+  border-top: 0.5px solid var(--lg-edge);
+}
+
+.dl-item {
+  border-bottom: 0.5px solid var(--lg-edge);
+  color: var(--lg-fg);
+  min-height: 52px;
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.dl-item:hover {
+  background-color: color-mix(in srgb, var(--lg-fg) 6%, transparent);
+  filter: none;
+}
+
+.dl-item .dl-badge,
+.dl-all-badge {
+  background: var(--lg-accent) !important;
+  color: #ffffff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--lg-accent) 28%, transparent);
+}
+
+.dl-all-badge {
+  background: rgba(255, 255, 255, 0.24) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.32);
+}
+
+.close-card,
+.slide-btn {
+  background: rgba(20, 22, 28, 0.48);
+  -webkit-backdrop-filter: blur(12px) saturate(1.6);
+  backdrop-filter: blur(12px) saturate(1.6);
+  border: 0.5px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+.close-card:hover,
+.slide-btn:hover {
+  background: rgba(20, 22, 28, 0.7);
+  color: #ffffff;
+}
+
+.slide-indicator,
+.local-badge {
+  background: rgba(20, 22, 28, 0.52);
+  -webkit-backdrop-filter: blur(12px) saturate(1.6);
+  backdrop-filter: blur(12px) saturate(1.6);
+  border: 0.5px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+}
+
+/* ==========================================================================
+   6. Segmented Controls & Filter Tracks (GlassSegmented)
+   ========================================================================== */
+
+.gallery-chips,
+.sniffer-filter-chips {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 4px;
+  gap: 4px;
+  border-radius: 999px;
+  background-color: var(--lg-fill);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  border: 0.5px solid var(--lg-edge);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 0.5px var(--lg-edge);
+}
+
+.gallery-chip,
+.sniffer-filter-chip {
+  min-height: 34px;
+  padding: 6px 15px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--lg-fg-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  transition:
+    background-color 0.22s ease,
+    color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.16s ease;
+}
+
+.gallery-chip:hover,
+.sniffer-filter-chip:hover {
+  background: color-mix(in srgb, var(--lg-fg) 6%, transparent);
+  color: var(--lg-fg);
+}
+
+.gallery-chip.active,
+.sniffer-filter-chip.active {
+  background: var(--lg-segment-selection);
+  color: var(--lg-fg);
+  border: 0;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 var(--lg-highlight-top),
+    inset 0 0 0 0.5px var(--lg-edge);
+}
+
+[data-theme="light"] .gallery-chip.active,
+[data-theme="light"] .sniffer-filter-chip.active {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.tool-chip-group {
+  padding: 4px;
+  border-radius: 20px;
+  background-color: var(--lg-fill);
+  border: 0.5px solid var(--lg-edge);
+  gap: 4px;
+}
+
+.tool-chip {
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--lg-fg-muted);
+  min-height: 36px;
+}
+
+.tool-chip.active {
+  background: var(--lg-accent);
+  color: #ffffff;
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--lg-accent) 28%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* ==========================================================================
+   7. Glass Switches (GlassSwitch)
+   ========================================================================== */
+
+.toggle-switch {
+  width: 58px;
+  height: 30px;
+}
+
+.toggle-switch label {
+  background-color: var(--lg-track);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.14),
+    inset 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  transition: background-color 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.toggle-switch label::before {
+  width: 24px;
+  height: 24px;
+  left: 3px;
+  bottom: 3px;
+  border-radius: 999px;
+  background: var(--lg-thumb);
+  box-shadow: var(--lg-thumb-shadow);
+  transition:
+    transform 0.34s cubic-bezier(0.22, 1.32, 0.36, 1),
+    width 0.18s ease,
+    background-color 0.2s ease;
+}
+
+.toggle-switch:active label::before {
+  width: 30px;
+}
+
+.toggle-switch input:checked + label {
+  background-color: var(--lg-green);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.08),
+    0 2px 10px color-mix(in srgb, var(--lg-green) 28%, transparent);
+}
+
+.toggle-switch input:checked + label::before {
+  transform: translateX(28px);
+}
+
+.toggle-switch:active input:checked + label::before {
+  transform: translateX(22px);
+}
+
+/* ==========================================================================
+   8. Glass Sliders (GlassSlider)
+   ========================================================================== */
+
+.bg-range-slider,
+.tool-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--lg-accent) 0%,
+    var(--lg-accent) calc(var(--lg-progress, 0.5) * 100%),
+    var(--lg-rail) calc(var(--lg-progress, 0.5) * 100%),
+    var(--lg-rail) 100%
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.bg-range-slider::-webkit-slider-thumb,
+.tool-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--lg-thumb);
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  box-shadow: var(--lg-thumb-shadow);
+  cursor: pointer;
+  transition: transform 0.16s cubic-bezier(0.22, 1.4, 0.36, 1);
+}
+
+.bg-range-slider::-webkit-slider-thumb:active,
+.tool-slider::-webkit-slider-thumb:active {
+  transform: scale(1.14);
+}
+
+.bg-range-slider::-moz-range-thumb,
+.tool-slider::-moz-range-thumb {
+  width: 30px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--lg-thumb);
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  box-shadow: var(--lg-thumb-shadow);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   9. Glass Cards, Panels, Menus & Toasts (GlassCard)
+   ========================================================================== */
+
+.media-card,
+.skeleton-card,
+.settings-list,
+.settings-menu-item,
+.tool-card,
+.tool-result-card,
+.tool-loader-card,
+.tool-error-card,
+.tool-empty-box,
+.sniffer-media-card,
+.anime-card,
+.username-card,
+.history-stats-card,
+.history-item,
+.gallery-item,
+.gallery-skeleton-card,
+.gallery-doc-card,
+.gallery-audio-card,
+.bg-anim-card,
+.download-bubble-dropup,
+.empty-state,
+.gallery-empty {
+  position: relative;
+  background-color: var(--lg-panel-fill);
+  -webkit-backdrop-filter: blur(var(--lg-panel-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: var(--lg-filter, ) blur(var(--lg-panel-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  border: 0.5px solid var(--lg-edge);
+  border-radius: var(--radius-xl, 24px);
+  color: var(--lg-fg);
+  box-shadow:
+    var(--lg-shadow),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+}
+
+.settings-menu-item:hover,
+.tool-card:hover,
+.gallery-item:hover,
+.history-item:hover {
+  background-color: color-mix(in srgb, var(--lg-panel-fill) 82%, var(--lg-fill-pressed));
+}
+
+.settings-menu-item:hover {
+  transform: translateY(-1px);
+}
+
+.menu-icon,
+.tool-card-icon,
+.history-thumb-container,
+.gallery-pdf-icon-wrap,
+.gallery-audio-icon-wrap,
+.gallery-doc-icon {
+  background: color-mix(in srgb, var(--lg-fill) 75%, transparent);
+  border: 0.5px solid var(--lg-edge);
+  color: var(--lg-accent);
+  border-radius: var(--radius-m, 14px);
+  box-shadow: inset 0 1px 0 var(--lg-highlight-top);
+}
+
+.settings-item {
+  border-bottom: 0.5px solid var(--lg-edge);
+}
+
+.settings-item.path-setting-item {
+  border-bottom: 0.5px solid var(--lg-edge);
+}
+
+.settings-section-divider {
+  color: var(--lg-fg-muted);
+}
+
+.settings-item .info-val,
+.menu-desc,
+.tool-card-desc,
+.history-info p,
+.gallery-meta p,
+.gallery-meta-text p {
+  color: var(--lg-fg-muted);
+}
+
+.path-display-pill,
+.sflgl-url-subtext,
+.sflgl-dest-box,
+.tiktok-bio,
+.tiktok-stats-grid,
+.anime-meta-grid,
+.bg-shape-card,
+.dbd-item {
+  background: color-mix(in srgb, var(--lg-fill) 52%, transparent);
+  border: 0.5px solid var(--lg-edge);
+  border-radius: var(--radius-m, 14px);
+}
+
+.bg-shape-card.active {
+  background: color-mix(in srgb, var(--lg-accent) 14%, var(--lg-fill));
+  border-color: var(--lg-accent);
+}
+
+.bg-anim-label svg {
+  color: var(--lg-accent);
+}
+
+.bg-anim-divider {
+  background-color: var(--lg-edge);
+  opacity: 1;
+}
+
+.shape-preview-circle {
+  color: var(--lg-accent);
+}
+
+.history-stats-card .stats-val,
+.history-stats-card .stats-label svg {
+  color: var(--lg-accent);
+}
+
+.thumbnail-wrapper {
+  background-color: color-mix(in srgb, var(--lg-fill) 35%, transparent);
+  border-bottom: 0.5px solid var(--lg-edge);
+}
+
+.progress-container {
+  background-color: var(--lg-track);
+  border: 0;
+  box-shadow: none;
+}
+
+.progress-bar {
+  background: var(--lg-accent);
+}
+
+.action-label,
+.action-label.danger {
+  color: var(--lg-red);
+  text-shadow: none;
+}
+
+/* Menus (GlassMenu aesthetic) */
+.dropdown-menu,
+.gallery-sort-menu {
+  background: var(--lg-menu-fill) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.8) !important;
+  backdrop-filter: blur(24px) saturate(1.8) !important;
+  border: 0.5px solid var(--lg-edge) !important;
+  border-radius: 20px !important;
+  padding: 6px !important;
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 var(--lg-highlight-top) !important;
+}
+
+.dropdown-menu .dropdown-item,
+.gallery-sort-item {
+  border-radius: 14px;
+  padding: 11px 14px;
+  color: var(--lg-fg);
+}
+
+.dropdown-item:hover,
+.gallery-sort-item:hover {
+  background: color-mix(in srgb, var(--lg-fg) 8%, transparent);
+}
+
+.gallery-sort-item.active {
+  background: var(--lg-accent);
+  color: #ffffff;
+}
+
+/* Floating Toast & Download Bubble */
+.custom-toast {
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  background: var(--lg-panel-fill);
+  -webkit-backdrop-filter: blur(var(--lg-panel-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-panel-blur)) saturate(var(--lg-saturate));
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 999px;
+  color: var(--lg-fg);
+  box-shadow:
+    var(--lg-shadow),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+}
+
+.download-bubble-container {
+  bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+  left: 16px;
+}
+
+@media (min-width: 1080px) {
+  .download-bubble-container {
+    bottom: 24px;
+    left: max(24px, calc((100vw - 920px) / 2 - 68px));
+  }
+}
+
+.download-bubble-btn {
+  width: 48px;
+  height: 48px;
+  color: var(--lg-accent);
+}
+
+.db-ring-fill {
+  stroke: var(--lg-accent);
+}
+
+.db-badge {
+  background: var(--lg-accent);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.dbd-header {
+  background: color-mix(in srgb, var(--lg-fg) 4%, transparent);
+  border-bottom: 0.5px solid var(--lg-edge);
+}
+
+.dbd-count-badge {
+  background: color-mix(in srgb, var(--lg-accent) 16%, transparent);
+  color: var(--lg-accent);
+  border-radius: 999px;
+}
+
+.dbd-item-pill {
+  background: var(--lg-accent);
+  color: #ffffff;
+  border-radius: 999px;
+}
+
+.dbd-item-bar {
+  background: var(--lg-accent);
+}
+
+/* ==========================================================================
+   10. Bottom Sheets & Modals (GlassSheet)
+   ========================================================================== */
+
+.modal-overlay {
+  background: var(--lg-scrim);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  padding: 16px;
+}
+
+.modal-content,
+.confirm-modal,
+.info-modal,
+.guide-modal,
+.pin-modal,
+.batch-modal {
+  position: relative;
+  background-color: color-mix(in srgb, var(--lg-panel-fill) 86%, var(--bg-color));
+  -webkit-backdrop-filter: blur(var(--lg-panel-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-panel-blur)) saturate(var(--lg-saturate)) brightness(var(--lg-brightness));
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 32px;
+  color: var(--lg-fg);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0.5px var(--lg-highlight-top);
+}
+
+@media (max-width: 639px) {
+  .modal-overlay:not(#confirmOverlay):not(#pinModalOverlay) {
+    align-items: flex-end;
+    padding: 8px;
+  }
+
+  .modal-overlay:not(#confirmOverlay):not(#pinModalOverlay) .modal-content {
+    width: min(560px, 100%);
+    max-width: 100% !important;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+    margin-bottom: max(4px, env(safe-area-inset-bottom));
+    border-radius: 34px;
+    animation: lgSheetUp 0.36s cubic-bezier(0.22, 1.18, 0.36, 1) forwards;
+  }
+
+  .modal-overlay:not(#confirmOverlay):not(#pinModalOverlay) .modal-content::before {
+    content: "";
+    display: block;
+    width: 36px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--lg-fg-faint);
+    margin: 10px auto 2px;
+  }
+}
+
+@keyframes lgSheetUp {
+  0% {
+    opacity: 0;
+    transform: translateY(32px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header,
+.info-modal .modal-header {
+  border-bottom: 0.5px solid var(--lg-edge);
+}
+
+.modal-header h3,
+.guide-header h2,
+.confirm-body h2,
+.batch-header h3 {
+  color: var(--lg-fg);
+  text-transform: none;
+  letter-spacing: -0.015em;
+}
+
+.guide-text,
+.info-body,
+.confirm-body p {
+  color: var(--lg-fg);
+}
+
+.confirm-body p {
+  color: var(--lg-fg-muted);
+}
+
+.guide-icon {
+  color: var(--lg-accent);
+}
+
+.guide-channel-item {
+  background: color-mix(in srgb, var(--lg-fill) 55%, transparent);
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 18px;
+}
+
+.guide-channel-item [data-i18n="guide-wa-action"] {
+  color: var(--lg-accent) !important;
+}
+
+.guide-checkbox input:checked + .checkmark {
+  background: var(--lg-accent);
+  border-color: var(--lg-accent);
+}
+
+.guide-checkbox input:checked + .checkmark::after {
+  border-color: #ffffff;
+}
+
+.modal-thumb-container {
+  background-color: color-mix(in srgb, var(--lg-fill) 45%, transparent);
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 22px;
+}
+
+.path-text {
+  background: color-mix(in srgb, var(--lg-fill) 50%, transparent);
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 16px;
+}
+
+.path-text svg {
+  color: var(--lg-accent);
+}
+
+.confirm-actions {
+  border-top: 0.5px solid var(--lg-edge);
+}
+
+.confirm-actions .cancel-btn {
+  border-right: 0.5px solid var(--lg-edge);
+  color: var(--lg-fg);
+}
+
+.confirm-actions .ok-btn {
+  color: var(--lg-red);
+}
+
+.confirm-actions .ok-btn.neutral-btn {
+  color: var(--lg-accent);
+}
+
+.confirm-actions button:hover,
+.confirm-actions button:active,
+.confirm-actions button:focus-visible {
+  background-color: color-mix(in srgb, var(--lg-fg) 8%, transparent) !important;
+  color: inherit !important;
+}
+
+.batch-counter {
+  background: color-mix(in srgb, var(--lg-fill) 65%, transparent);
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 999px;
+}
+
+.batch-item {
+  background: color-mix(in srgb, var(--lg-fill) 52%, transparent);
+  border: 0.5px solid var(--lg-edge);
+  border-radius: 18px;
+}
+
+.pin-dot {
+  border-color: var(--lg-accent);
+}
+
+.pin-dot.filled {
+  background: var(--lg-accent);
+}
+
+.pin-key:active {
+  background: var(--lg-accent);
+  color: #ffffff;
+}
+
+/* Gallery Fullscreen Viewer Glass Header/Footer */
+.gallery-viewer {
+  background: var(--bg-color);
+}
+
+.gallery-viewer-header,
+.gallery-viewer-info {
+  background: var(--lg-panel-fill);
+  -webkit-backdrop-filter: blur(var(--lg-panel-blur)) saturate(var(--lg-saturate));
+  backdrop-filter: blur(var(--lg-panel-blur)) saturate(var(--lg-saturate));
+  border-color: var(--lg-edge);
+}
+
+/* ==========================================================================
+   11. User Preset Compatibility Overrides (glass-off / corner-sharp)
+   ========================================================================== */
+
+body.glass-off::before,
+body.glass-off::after {
+  opacity: 0.35;
+}
+
+body.glass-off .bottom-nav,
+body.glass-off .media-card,
+body.glass-off .settings-list,
+body.glass-off .settings-menu-item,
+body.glass-off .tool-card,
+body.glass-off .tool-result-card,
+body.glass-off .history-stats-card,
+body.glass-off .history-item,
+body.glass-off .gallery-item,
+body.glass-off .bg-anim-card,
+body.glass-off .modal-content,
+body.glass-off .confirm-modal,
+body.glass-off .custom-toast,
+body.glass-off .chip,
+body.glass-off .input-wrapper input[type="text"],
+body.glass-off #urlInput,
+body.glass-off .gallery-search-wrap,
+body.glass-off .gallery-custom-select,
+body.glass-off .custom-select {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+body.corner-sharp .media-card,
+body.corner-sharp .settings-list,
+body.corner-sharp .settings-menu-item,
+body.corner-sharp .tool-card,
+body.corner-sharp .tool-result-card,
+body.corner-sharp .history-stats-card,
+body.corner-sharp .history-item,
+body.corner-sharp .gallery-item,
+body.corner-sharp .bg-anim-card,
+body.corner-sharp .modal-content,
+body.corner-sharp .confirm-modal,
+body.corner-sharp .chip,
+body.corner-sharp .input-wrapper input[type="text"],
+body.corner-sharp #urlInput,
+body.corner-sharp .batch-url-textarea {
+  border-radius: var(--radius-lg, 10px);
+}
+
+body.corner-modern .media-card,
+body.corner-modern .settings-list,
+body.corner-modern .settings-menu-item,
+body.corner-modern .tool-card,
+body.corner-modern .tool-result-card,
+body.corner-modern .history-stats-card,
+body.corner-modern .history-item,
+body.corner-modern .gallery-item,
+body.corner-modern .bg-anim-card,
+body.corner-modern .modal-content,
+body.corner-modern .confirm-modal,
+body.corner-modern .chip {
+  border-radius: var(--radius-lg, 16px);
+}

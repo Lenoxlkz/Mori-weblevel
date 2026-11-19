@@ -1,0 +1,167 @@
+/* Variables, Themes & Presets */
+
+:root {
+  --bg-color: #fffbf2;
+  --bg-rgb: 255, 251, 242;
+  --surface: #f7f3e9;
+  --surface-rgb: 247, 243, 233;
+  --primary: #1a1917;
+  --primary-rgb: 26, 25, 23;
+  --on-primary: #fffbf2;
+  --text-main: #1a1917;
+  --text-secondary: #6e6a64;
+  --border-color: rgba(26, 25, 23, 0.12);
+  --radius-xs: 2px;
+  --radius-s: 3px;
+  --radius-m: 4px;
+  --radius-l: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --transition: all 0.2s ease;
+  /* Animation Speed */
+  --anim-duration: 0.2s;
+  --anim-scale: 1;
+}
+
+[data-theme="dark"] {
+  --bg-color: #141416;
+  --bg-rgb: 20, 20, 22;
+  --surface: #1e1e22;
+  --surface-rgb: 30, 30, 34;
+  --primary: #f8f8fa;
+  --primary-rgb: 248, 248, 250;
+  --on-primary: #141416;
+  --text-main: #f8f8fa;
+  --text-secondary: #94949e;
+  --border-color: rgba(248, 248, 250, 0.12);
+}
+
+/* Font Presets */
+body.font-default {
+  font-family:
+    "Inter",
+    -apple-system,
+    sans-serif;
+}
+body.font-jakarta {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+body.font-serif {
+  font-family: "Georgia", serif;
+}
+body.font-mono {
+  font-family: "Space Mono", monospace;
+}
+body.font-display {
+  font-family: "Outfit", sans-serif;
+}
+
+/* Animation Speed Presets */
+body.anim-off * {
+  transition: none !important;
+  animation: none !important;
+}
+body.anim-slow * {
+  transition-duration: 0.5s !important;
+}
+/* anim-normal = default, no override */
+body.anim-fast * {
+  transition-duration: 0.08s !important;
+}
+
+/* Glassmorphism Presets */
+body.glass-off {
+  --glass-blur: 0px;
+  --glass-bg-opacity: 1;
+  --lg-blur: 0px;
+  --lg-panel-blur: 0px;
+  --lg-fill: var(--surface);
+  --lg-panel-fill: var(--surface);
+  --lg-navigation-fill: var(--bg-color);
+}
+
+body.glass-off .settings-list,
+body.glass-off .settings-menu-item,
+body.glass-off .bottom-nav,
+body.glass-off .custom-toast,
+body.glass-off .media-card,
+body.glass-off .result-card,
+body.glass-off .history-item,
+body.glass-off .bg-anim-card,
+body.glass-off .back-btn-settings,
+body.glass-off .path-setting-item,
+body.glass-off .modal-content,
+body.glass-off .confirm-modal {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: var(--surface) !important;
+}
+
+body.glass-off .bottom-nav,
+body.glass-off .settings-list {
+  background-color: var(--bg-color) !important;
+}
+
+body.glass-subtle {
+  --glass-blur: 8px;
+  --glass-bg-opacity: 0.82;
+  --lg-blur: 6px;
+  --lg-panel-blur: 20px;
+}
+
+body.glass-deep {
+  --glass-blur: 14px;
+  --glass-bg-opacity: 0.64;
+  --lg-blur: 8px;
+  --lg-panel-blur: 28px;
+}
+
+/* UI Corner Radius Presets */
+
+/* corner-sharp = Sharp (6px) */
+body.corner-sharp {
+  --radius-xs: 2px;
+  --radius-s: 4px;
+  --radius-m: 6px;
+  --radius-l: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+}
+
+/* corner-modern = Modern (14px) */
+body.corner-modern {
+  --radius-xs: 4px;
+  --radius-s: 8px;
+  --radius-m: 10px;
+  --radius-l: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+/* corner-round = Apple Liquid Glass Pill / Soft Round (24px+) */
+body.corner-round {
+  --radius-xs: 8px;
+  --radius-s: 12px;
+  --radius-m: 16px;
+  --radius-l: 22px;
+  --radius-lg: 24px;
+  --radius-xl: 28px;
+}
+
+/* Compact Mode */
+body.compact-mode .settings-item {
+  padding: 8px 14px;
+  min-height: 44px;
+}
+body.compact-mode .page-header {
+  margin-bottom: 12px;
+}
+body.compact-mode .settings-list {
+  gap: 0;
+}
+body.compact-mode .history-item {
+  padding: 8px 12px;
+}
+body.compact-mode .app-container {
+  padding-top: calc(30px + env(safe-area-inset-top));
+}
