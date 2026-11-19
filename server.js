@@ -5,6 +5,8 @@ const https = require("https");
 const axios = require("axios");
 
 const app = express();
+app.set("trust proxy", 1);
+app.disable("x-powered-by");
 const PORT = parseInt(process.env.PORT || "3000", 10);
 const HOST = "0.0.0.0";
 
@@ -197,6 +199,17 @@ app.use((_req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(PORT, HOST, () => {
+const server = app.listen(PORT, HOST, () => {
   console.log(`Mori server running at http://${HOST}:${PORT}`);
 });
+
+function shutdown(signal) {
+  console.log(`Received ${signal}, shutting down gracefully...`);
+  server.close(() => {
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(0), 5000).unref();
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

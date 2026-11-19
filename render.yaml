@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: mori-web
+    runtime: node
+    plan: free
+    buildCommand: npm install --omit=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
